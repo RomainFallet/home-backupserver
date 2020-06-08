@@ -29,12 +29,11 @@
     * [Step 1: Postfix](#step-1-postfix)
     * [Step 2: Firewall](#step-2-firewall)
     * [Step 3: Fail2ban](#step-3-fail2ban)
-10. [Configure hard drive](#9-configure-hard-drive)
+10. [Configure hard drive](#10-configure-hard-drive)
     * [Step 1: check disk status](#step-1-check-disk-status)
     * [Step 2: create the filesystem](#step-2-create-the-filesystem)
     * [Step 3: create the mount point](#step-3-create-the-mount-point)
     * [Step 4: mount the filesystem](#step-4-mount-the-filesystem)
-
 
 ## 1. Requirements
 
@@ -336,9 +335,11 @@ ssh-keygen -t rsa -b 4096 -N ''
 
 From your computer, run:
 
+<!-- markdownlint-disable MD013 -->
 ```bash
 ssh <yourUserName>@<yourIpAddress> "echo '$(cat ~/.ssh/id_rsa.pub)' | tee -a ~/.ssh/authorized_keys > /dev/null"
 ```
+<!-- markdownlint-enable -->
 
 If you try to reconnect to your machine through SSH, you should now be
 able to login without being asked for a password. SSH will automatically
@@ -363,6 +364,7 @@ files in your next computer to allow connections from it).
 
 To disable SSH password authentication, connect to your Pie and run:
 
+<!-- markdownlint-disable MD013 -->
 ```bash
 # Update the config and save the original in a "/etc/ssh/sshd_config.backup" file
 sudo sed -i'.backup' -e 's/PasswordAuthentication yes/PasswordAuthentication no/g' /etc/ssh/sshd_config
@@ -378,13 +380,16 @@ ClientAliveCountMax 3" | sudo tee -a /etc/ssh/sshd_config > /dev/null
 # Restart SSH
 sudo service ssh restart
 ```
+<!-- markdownlint-enable -->
+
 ## 9. Set up machine
 
-### Postfix
+### Step 1: Postfix
 
-[Back to top ↑](#table-of-contents)
+[Back to top ↑](#installation-guide)
 
-We've set up email notifications on updates errors but we need an SMTP server in order to actually be able to send emails.
+We've set up email notifications on updates errors but
+we need an SMTP server in order to actually be able to send emails.
 
 ```bash
 # Install
@@ -398,11 +403,15 @@ echo "root:     ${email}" | sudo tee -a /etc/aliases > /dev/null
 sudo newaliases
 ```
 
-### Firewall
+### Step 2: Firewall
 
-[Back to top ↑](#table-of-contents)
+[Back to top ↑](#installation-guide)
 
-We will enable Ubuntu firewall in order to prevent remote access to our machine. We will only allow SSH (for remote SSH access) and Postfix (for emails sent to the postmaster address). **Careful, you need to allow SSH before enabling the firewall, if not, you may lose access to your machine.**
+We will enable Ubuntu firewall in order to prevent remote access to our machine.
+We will only allow SSH (for remote SSH access) and Postfix
+(for emails sent to the postmaster address).
+**Careful, you need to allow SSH before enabling the
+firewall, if not, you may lose access to your machine.**
 
 ```bash
 # Add rules and activate firewall
@@ -411,11 +420,13 @@ sudo ufw allow Postfix
 echo 'y' | sudo ufw enable
 ```
 
-### Fail2ban
+### Step 3: Fail2ban
 
-[Back to top ↑](#table-of-contents)
+[Back to top ↑](#installation-guide)
 
-Preventing remote access from others sotwares than SSH and Postfix in not enough. We are still vulnerable to brute-force attacks through these services. We will use Fail2ban to protect us.
+Preventing remote access from others sotwares than SSH and Postfix in not
+enough. We are still vulnerable to brute-force attacks through these services.
+We will use Fail2ban to protect us.
 
 ```bash
 # Install
@@ -484,7 +495,7 @@ sudo mkfs.ext4 -F /dev/sda
 [Back to top ↑](#installation-guide)
 
 ```bash
-mkdir ~/backup-data
+sudo mkdir /home/jails
 ```
 
 ### Step 4: mount the filesystem
@@ -493,9 +504,8 @@ mkdir ~/backup-data
 
 ```bash
 # Mount the disk now
-sudo mount /dev/sda "/home/$(whoami)/backup-data"
+sudo mount /dev/sda /home/jails
 
 # Make the mount permanent after reboot
-echo "/dev/sda /home/$(whoami)/backup-data ext4 defaults 0 1" | sudo tee \
--a /etc/fstab > /dev/null
+echo "/dev/sda /home/jails ext4 defaults 0 1" | sudo tee -a /etc/fstab > /dev/null
 ```
