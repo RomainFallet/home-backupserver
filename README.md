@@ -536,7 +536,7 @@ newpassword=$(openssl rand -hex 15)
 
 <!-- markdownlint-disable MD013 -->
 ```bash
-username=${newusername} password=${newpassword} commands_list=bash,ls,rm,touch,mkdir,rmdir bash -c "$(wget --no-cache -O- https://raw.githubusercontent.com/RomainFallet/chroot-jail/master/create.sh)"
+username=${newusername} password=${newpassword} use_basic_commands=n bash -c "$(wget --no-cache -O- https://raw.githubusercontent.com/RomainFallet/chroot-jail/master/create.sh)"
 ```
 <!-- markdownlint-enable -->
 
@@ -548,8 +548,14 @@ username=${newusername} password=${newpassword} commands_list=bash,ls,rm,touch,m
 # Create SSH folder in the user home
 sudo mkdir -p "/home/${newusername}/.ssh"
 
+# Set up permissions
+sudo chmod 700 "/home/${newusername}/.ssh"
+
 # Copy the authorized_keys file to enable passwordless SSH connections
 sudo cp ~/.ssh/authorized_keys "/home/${newusername}/.ssh/authorized_keys"
+
+# Set up permissions
+sudo chmod 644 "/home/${newusername}/.ssh/authorized_keys"
 
 # Give ownership to the user
 sudo chown -R "${newusername}:${newusername}" "/home/${newusername}/.ssh"
@@ -566,6 +572,17 @@ Login to the user of the machine that will  perform backups, then use:
 
 <!-- markdownlint-disable MD013 -->
 ```bash
+# Ensure SSH keys permissions are OK
+sudo chmod 400 ~/.ssh/id_rsa
+sudo chmod 400 ~/.ssh/id_rsa.pub
+
+# Add public key to the backup machine's authorized keys
 ssh -t <adminBackupUsername>@<backupHostname> "echo '$(cat ~/.ssh/id_rsa.pub)' | sudo tee -a /home/<newUsername>/.ssh/authorized_keys"
 ```
 <!-- markdownlint-enable -->
+
+Then, you can login explicitly with the private key like this:
+
+```bash
+ssh -i ~/.ssh/id_rsa <newusername>@<backupHostname>
+```
