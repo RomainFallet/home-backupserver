@@ -575,13 +575,14 @@ Login to the user of the machine that will  perform backups, then use:
 # Ensure SSH keys permissions are OK
 sudo chmod 400 ~/.ssh/id_rsa
 sudo chmod 400 ~/.ssh/id_rsa.pub
-
-# Add public key to the backup machine's authorized keys
-ssh -t <adminBackupUsername>@<backupHostname> "echo '$(cat ~/.ssh/id_rsa.pub)' | sudo tee -a /home/<newUsername>/.ssh/authorized_keys"
 ```
 <!-- markdownlint-enable -->
 
-Then, you can login explicitly with the private key like this:
+Then, copy the content of the `~/.ssh/id_rsa.pub` file
+in the `~/.ssh/authorized_keys` file of the user
+you've just created on the backup machine.
+
+You will be able to login explicitly with the private key like this:
 
 ```bash
 ssh -i ~/.ssh/id_rsa <newusername>@<backupHostname>
