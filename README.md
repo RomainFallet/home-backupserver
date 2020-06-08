@@ -34,6 +34,12 @@
     * [Step 2: create the filesystem](#step-2-create-the-filesystem)
     * [Step 3: create the mount point](#step-3-create-the-mount-point)
     * [Step 4: mount the filesystem](#step-4-mount-the-filesystem)
+11. [Create a new backup access](#11-create-a-new-backup-access)
+    * [Step 1: ask for username and generate password](#step-1-ask-for-username-and-generate-password)
+    * [Step 2: create the user and put it into a jail](#step-2-create-the-user-and-put-it-into-a-jail)
+    * [Step 3: enable access from your computer](#step-3-enable-access-from-your-computer)
+    * [Step 4: enable access from the machine that will perform backups](#step-4-enable-access-from-the-machine-that-will-perform-backups
+)
 
 ## 1. Requirements
 
@@ -509,3 +515,57 @@ sudo mount /dev/sda /home/jails
 # Make the mount permanent after reboot
 echo "/dev/sda /home/jails ext4 defaults 0 1" | sudo tee -a /etc/fstab > /dev/null
 ```
+
+## 11. Create a new backup access
+
+### Step 1: ask for username and generate password
+
+[Back to top ↑](#installation-guide)
+
+```bash
+# Ask for username
+read -r -p 'Enter the new username: ' newusername
+
+# Generate a new password
+newpassword=$(openssl rand -hex 15)
+```
+
+### Step 2: create the user and put it into a jail
+
+[Back to top ↑](#installation-guide)
+
+<!-- markdownlint-disable MD013 -->
+```bash
+username=${newusername} password=${newpassword} commands_list=bash,ls,rm,touch,mkdir,rmdir bash -c "$(wget --no-cache -O- https://raw.githubusercontent.com/RomainFallet/chroot-jail/master/create.sh)"
+```
+<!-- markdownlint-enable -->
+
+### Step 3: enable access from your computer
+
+[Back to top ↑](#installation-guide)
+
+```bash
+# Create SSH folder in the user home
+sudo mkdir -p "/home/${newusername}/.ssh"
+
+# Copy the authorized_keys file to enable passwordless SSH connections
+sudo cp ~/.ssh/authorized_keys "/home/${newusername}/.ssh/authorized_keys"
+
+# Give ownership to the user
+sudo chown -R "${newusername}:${newusername}" "/home/${newusername}/.ssh"
+```
+
+**Note: you actually don't need to know the password because we disabled SSH
+password authentication and didn't give sudo privileges to this user.**
+
+### Step 4: enable access from the machine that will perform backups
+
+[Back to top ↑](#installation-guide)
+
+Login to the user of the machine that will  perform backups, then use:
+
+<!-- markdownlint-disable MD013 -->
+```bash
+ssh -t <adminBackupUsername>@<backupHostname> "echo '$(cat ~/.ssh/id_rsa.pub)' | sudo tee -a /home/<newUsername>/.ssh/authorized_keys"
+```
+<!-- markdownlint-enable -->
