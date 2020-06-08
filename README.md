@@ -25,9 +25,15 @@
     * [Step 1: create an SSH key](#step-1-create-an-ssh-key)
     * [Step 2: add your public key to your machine's authorized keys](#step-2-add-your-public-key-to-your-machines-authorized-keys)
     * [Step 3: disallow SSH password authentication](#step-3-disallow-ssh-password-authentication)
-9. [Configure hard drive](#9-configure-hard-drive)
-    * [Step 1: check disk status on the backup machine](#step-1-check-disk-status-on-the-backup-machine)
-
+9. [Set up machine](#9-set-up-machine)
+    * [Step 1: Postfix](#step-1-postfix)
+    * [Step 2: Firewall](#step-2-firewall)
+    * [Step 3: Fail2ban](#step-3-fail2ban)
+10. [Configure hard drive](#9-configure-hard-drive)
+    * [Step 1: check disk status](#step-1-check-disk-status)
+    * [Step 2: create the filesystem](#step-2-create-the-filesystem)
+    * [Step 3: create the mount point](#step-3-create-the-mount-point)
+    * [Step 4: mount the filesystem](#step-4-mount-the-filesystem)
 
 
 ## 1. Requirements
@@ -372,8 +378,78 @@ ClientAliveCountMax 3" | sudo tee -a /etc/ssh/sshd_config > /dev/null
 # Restart SSH
 sudo service ssh restart
 ```
+## 9. Set up machine
 
-## 9. Configure hard drive
+### Postfix
+
+[Back to top ↑](#table-of-contents)
+
+We've set up email notifications on updates errors but we need an SMTP server in order to actually be able to send emails.
+
+```bash
+# Install
+sudo DEBIAN_FRONTEND=noninteractive apt install -y postfix mailutils
+
+# Make a backup of the config file
+sudo cp /etc/aliases /etc/.aliases.backup
+
+# Forwarding System Mail to your email address
+echo "root:     ${email}" | sudo tee -a /etc/aliases > /dev/null
+sudo newaliases
+```
+
+### Firewall
+
+[Back to top ↑](#table-of-contents)
+
+We will enable Ubuntu firewall in order to prevent remote access to our machine. We will only allow SSH (for remote SSH access) and Postfix (for emails sent to the postmaster address). **Careful, you need to allow SSH before enabling the firewall, if not, you may lose access to your machine.**
+
+```bash
+# Add rules and activate firewall
+sudo ufw allow OpenSSH
+sudo ufw allow Postfix
+echo 'y' | sudo ufw enable
+```
+
+### Fail2ban
+
+[Back to top ↑](#table-of-contents)
+
+Preventing remote access from others sotwares than SSH and Postfix in not enough. We are still vulnerable to brute-force attacks through these services. We will use Fail2ban to protect us.
+
+```bash
+# Install
+sudo apt install -y fail2ban
+
+# Add default configuration
+echo "[DEFAULT]
+findtime = 3600
+bantime = 86400
+destemail = ${email}
+action = %(action_mwl)s" | sudo tee /etc/fail2ban/jail.local > /dev/null
+
+echo "
+[sshd]
+enabled = true
+port = ssh
+filter = sshd
+logpath = /var/log/auth.log
+maxretry = 3" | sudo tee -a /etc/fail2ban/jail.local > /dev/null
+
+# Add Postfix configuration
+echo "
+[postfix]
+enabled  = true
+port     = smtp
+filter   = postfix
+logpath  = /var/log/mail.log
+maxretry = 5" | sudo tee -a /etc/fail2ban/jail.local > /dev/null
+
+# Restart Fail2ban
+sudo service fail2ban restart
+```
+
+## 10. Configure hard drive
 
 ### Step 1: check disk status
 
@@ -395,7 +471,7 @@ mmcblk0     14.9G        disk
 └─mmcblk0p2 14.6G ext4   part /
 ```
 
-### Step 2: create the filesystem on the backup machine
+### Step 2: create the filesystem
 
 [Back to top ↑](#installation-guide)
 
@@ -403,7 +479,7 @@ mmcblk0     14.9G        disk
 sudo mkfs.ext4 -F /dev/sda
 ```
 
-### Step 5: create the mount point on the backup machine
+### Step 3: create the mount point
 
 [Back to top ↑](#installation-guide)
 
@@ -411,7 +487,7 @@ sudo mkfs.ext4 -F /dev/sda
 mkdir ~/backup-data
 ```
 
-### Step 6: mount the filesystem on the backup machine
+### Step 4: mount the filesystem
 
 [Back to top ↑](#installation-guide)
 
@@ -422,50 +498,4 @@ sudo mount /dev/sda "/home/$(whoami)/backup-data"
 # Make the mount permanent after reboot
 echo "/dev/sda /home/$(whoami)/backup-data ext4 defaults 0 1" | sudo tee \
 -a /etc/fstab > /dev/null
-```
-
-### Step 8: enable the firewall on the backup machine
-
-[Back to top ↑](#installation-guide)
-
-```bash
-# Allow only SSH connections
-sudo ufw allow OpenSSH
-
-# Activate the firewall
-echo 'y' | sudo ufw enable
-```
-
-We didn't have to do that on the first machine because Mailinabox did it for us.
-
-### Step 9: install and configure Fail2ban on the backup machine
-
-[Back to top ↑](#installation-guide)
-
-To prevent bute-force attacks on the backup machine, we will install
-Fail2ban. Fail2ban will ban IP addresses for a short period
-after 3 failed connection attemps through SSH.
-
-```bash
-# Install Fail2ban
-sudo apt install -y fail2ban
-
-# Add default configuration
-echo "[DEFAULT]
-findtime = 3600
-bantime = 86400
-destemail = ${email}
-action = %(action_mwl)s" | sudo tee /etc/fail2ban/jail.local > /dev/null
-
-# Add SSH configuration
-echo "
-[sshd]
-enabled = true
-port = ssh
-filter = sshd
-logpath = /var/log/auth.log
-maxretry = 3" | sudo tee -a /etc/fail2ban/jail.local > /dev/null
-
-# Restart Fail2ban
-sudo service fail2ban restart
 ```
