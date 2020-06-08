@@ -152,7 +152,7 @@ usermod -d /home/<newUserName> -m <newUserName>
 # Change password
 passwd <newUserName>
 
-# Change hostname (it could be for example backup.yourDomain.com)
+# Change hostname
 hostnamectl set-hostname <newHostname>
 ```
 
