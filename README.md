@@ -26,6 +26,7 @@
     * [Step 2: add your public key to your machine's authorized keys](#step-2-add-your-public-key-to-your-machines-authorized-keys)
     * [Step 3: disallow SSH password authentication](#step-3-disallow-ssh-password-authentication)
 9. [Set up machine](#9-set-up-machine)
+    * [Step 0: set up variables](#step-0-set-up-variables)
     * [Step 1: Postfix](#step-1-postfix)
     * [Step 2: Firewall](#step-2-firewall)
     * [Step 3: Fail2ban](#step-3-fail2ban)
@@ -158,7 +159,7 @@ usermod -d /home/<newUserName> -m <newUserName>
 # Change password
 passwd <newUserName>
 
-# Change hostname
+# Change hostname (must be a domain name pointing to this machine IP address)
 hostnamectl set-hostname <newHostname>
 ```
 
@@ -389,6 +390,44 @@ sudo service ssh restart
 <!-- markdownlint-enable -->
 
 ## 9. Set up machine
+
+### Step 0: set up variables
+
+[Back to top ↑](#installation-guide)
+
+<!-- markdownlint-disable MD013 -->
+```bash
+# Ask email if not already set
+if [[ -z "${email}" ]]; then
+    read -r -p "Enter your email (needed to set up email monitoring): " email
+fi
+
+# Ask hostname if not already set
+if [[ -z "${hostname}" ]]; then
+    read -r -p "Enter your hostname (it must be a domain name pointing to this machine IP address): " hostname
+fi
+
+# Ask SMTP hostname if not already set
+if [[ -z "${smtphostname}" ]]; then
+    read -r -p "Enter your remote SMTP server hostname: " smtphostname
+fi
+
+# Ask SMTP port if not already set
+if [[ -z "${smtpport}" ]]; then
+    read -r -p "Enter your remote SMTP server port: " smtpport
+fi
+
+# Ask SMTP username if not already set
+if [[ -z "${smtpusername}" ]]; then
+    read -r -p "Enter your remote SMTP server username: " smtpusername
+fi
+
+# Ask SMTP username if not already set
+if [[ -z "${smtppassword}" ]]; then
+    read -r -p "Enter your SMTP password: " smtppassword
+fi
+```
+<!-- markdownlint enable -->
 
 ### Step 1: Postfix
 
