@@ -659,9 +659,12 @@ Login to the user of the machine that will  perform backups, then use:
 
 <!-- markdownlint-disable MD013 -->
 ```bash
+# Ensure SSH keys exists
+ssh-keygen -t rsa -b 4096 -N ''
+
 # Ensure SSH keys permissions are OK
-sudo chmod 400 ~/.ssh/id_rsa
-sudo chmod 400 ~/.ssh/id_rsa.pub
+chmod 400 ~/.ssh/id_rsa
+chmod 400 ~/.ssh/id_rsa.pub
 ```
 <!-- markdownlint-enable -->
 
