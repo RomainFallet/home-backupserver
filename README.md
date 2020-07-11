@@ -660,7 +660,7 @@ Login to the user of the machine that will  perform backups, then use:
 <!-- markdownlint-disable MD013 -->
 ```bash
 # Ensure SSH keys exists
-ssh-keygen -t rsa -b 4096 -N ''
+ssh-keygen -t rsa -b 4096 -N '' -f ~/.ssh/id_rsa
 
 # Ensure SSH keys permissions are OK
 chmod 400 ~/.ssh/id_rsa
