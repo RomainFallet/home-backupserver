@@ -342,7 +342,7 @@ If you don't have an SSH key (look for "`~/.ssh/id_rsa`" and
 "`~/.ssh/id_rsa.pub`" files), use this command to generate one:
 
 ```bash
-ssh-keygen -t rsa -b 4096 -N ''
+ssh-keygen -t rsa -b 4096 -N '' -f ~/.ssh/id_rsa
 ```
 
 ### Step 2: add your public key to your machine's authorized keys
@@ -353,7 +353,7 @@ From your computer, run:
 
 <!-- markdownlint-disable MD013 -->
 ```bash
-ssh <yourUserName>@<yourIpAddress> "echo '$(cat ~/.ssh/id_rsa.pub)' | tee -a ~/.ssh/authorized_keys > /dev/null"
+ssh <yourUserName>@<yourIpAddress> "echo '$(cat ~/.ssh/id_rsa.pub)' | tee -a ~/.ssh/authorized_keys > /dev/null && chmod 400 ~/.ssh/id_rsa*"
 ```
 <!-- markdownlint-enable -->
 
@@ -663,8 +663,7 @@ Login to the user of the machine that will  perform backups, then use:
 ssh-keygen -t rsa -b 4096 -N '' -f ~/.ssh/id_rsa
 
 # Ensure SSH keys permissions are OK
-chmod 400 ~/.ssh/id_rsa
-chmod 400 ~/.ssh/id_rsa.pub
+chmod 400 ~/.ssh/id_rsa*
 ```
 <!-- markdownlint-enable -->
 
@@ -672,8 +671,8 @@ Then, copy the content of the `~/.ssh/id_rsa.pub` file
 in the `~/.ssh/authorized_keys` file of the user
 you've just created on the backup machine.
 
-You will be able to login explicitly with the private key like this:
+You will be able to login without password like this:
 
 ```bash
-ssh -i ~/.ssh/id_rsa <newusername>@<backupHostname>
+ssh <newusername>@<backupHostname>
 ```
