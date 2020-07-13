@@ -28,7 +28,6 @@
     * [Step 3: disallow SSH password authentication](#step-3-disallow-ssh-password-authentication)
     * [Step 4: keep alive SSH connections](#step-4-keep-alive-ssh-connections)
     * [Step 5: Change default SSH port](#step-5-change-default-ssh-port)
-
 9. [Set up machine](#9-set-up-machine)
     * [Step 0: set up variables](#step-0-set-up-variables)
     * [Step 1: Postfix](#step-1-postfix)
