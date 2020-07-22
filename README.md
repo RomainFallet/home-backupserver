@@ -308,7 +308,7 @@ port 22.
 "Ma Freebox" > "Paramétrer mon routeur Freebox" > "Redirections / Baux DHCP"
 and fill the form like bellow.*
 
-![port-forwarding](https://user-images.githubusercontent.com/6952638/84016511-aefc5500-a97d-11ea-8481-90ef054f9932.png)
+![port-forwarding](https://user-images.githubusercontent.com/67046837/88224125-d165db80-cc68-11ea-9bf1-22ae4fb81959.png)
 
 ## 8. Restrict SSH access
 
