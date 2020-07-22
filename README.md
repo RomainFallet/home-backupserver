@@ -28,10 +28,6 @@
     * [Step 4: keep alive SSH connections](#step-4-keep-alive-ssh-connections)
     * [Step 5: Change default SSH port](#step-5-change-default-ssh-port)
 9. [Set up machine](#9-set-up-machine)
-    * [Step 0: set up variables](#step-0-set-up-variables)
-    * [Step 1: Postfix](#step-1-postfix)
-    * [Step 2: Firewall](#step-2-firewall)
-    * [Step 3: Fail2ban](#step-3-fail2ban)
 10. [Configure hard drive](#10-configure-hard-drive)
     * [Step 1: check disk status](#step-1-check-disk-status)
     * [Step 2: create the filesystem](#step-2-create-the-filesystem)
@@ -403,148 +399,13 @@ sudo service ssh restart
 
 ## 9. Set up machine
 
-### Step 0: set up variables
-
 [Back to top ↑](#installation-guide)
 
 <!-- markdownlint-disable MD013 -->
 ```bash
-# Ask email if not already set
-if [[ -z "${email}" ]]; then
-    read -r -p "Enter your email (needed to set up email monitoring): " email
-fi
-
-# Ask hostname if not already set
-if [[ -z "${hostname}" ]]; then
-    read -r -p "Enter your hostname (it must be a domain name pointing to this machine IP address): " hostname
-fi
-
-# Ask SMTP hostname if not already set
-if [[ -z "${smtphostname}" ]]; then
-    read -r -p "Enter your remote SMTP server hostname: " smtphostname
-fi
-
-# Ask SMTP port if not already set
-if [[ -z "${smtpport}" ]]; then
-    read -r -p "Enter your remote SMTP server port: " smtpport
-fi
-
-# Ask SMTP username if not already set
-if [[ -z "${smtpusername}" ]]; then
-    read -r -p "Enter your remote SMTP server username: " smtpusername
-fi
-
-# Ask SMTP username if not already set
-if [[ -z "${smtppassword}" ]]; then
-    read -r -p "Enter your SMTP password: " smtppassword
-fi
-```
-<!-- markdownlint enable -->
-
-### Step 1: Postfix
-
-[Back to top ↑](#installation-guide)
-
-We've set up email notifications on updates errors but
-we need an SMTP server in order to actually be able to send emails.
-
-<!-- markdownlint-disable MD013 -->
-```bash
-# Install
-sudo DEBIAN_FRONTEND=noninteractive apt install -y postfix mailutils
-
-# Make a backup of the config files
-sudo cp /etc/postfix/main.cf /etc/postfix/.main.cf.backup
-sudo cp /etc/aliases /etc/.aliases.backup
-
-# Update main config file
-echo "smtpd_relay_restrictions = permit_mynetworks permit_sasl_authenticated defer_unauth_destination
-myhostname = ${hostname}
-relayhost = [${smtphostname}]:${smtpport}
-alias_maps = hash:/etc/aliases
-alias_database = hash:/etc/aliases
-mailbox_size_limit = 0
-recipient_delimiter = +
-inet_interfaces = all
-inet_protocols = ipv4
-smtp_sasl_auth_enable = yes
-smtp_sasl_security_options = noanonymous
-smtp_sasl_password_maps = hash:/etc/postfix/sasl_passwd
-smtp_use_tls = yes
-smtp_tls_CAfile = /etc/ssl/certs/ca-certificates.crt
-sender_canonical_classes = envelope_sender, header_sender
-sender_canonical_maps =  regexp:/etc/postfix/sender_canonical_maps
-smtp_header_checks = regexp:/etc/postfix/header_check" | sudo tee -a /etc/postfix/main.cf > /dev/null
-
-# Save SMTP credentials
-echo "[${smtphostname}]:${smtpport} ${smtpusername}:${smtppassword}" | sudo tee /etc/postfix/sasl_passwd > /dev/null
-sudo postmap /etc/postfix/sasl_passwd
-sudo chown root:root /etc/postfix/sasl_passwd /etc/postfix/sasl_passwd.db
-sudo chmod 0600 /etc/postfix/sasl_passwd /etc/postfix/sasl_passwd.db
-
-# Remap sender address
-echo "/.+/    ${smtpusername}" | sudo tee /etc/postfix/sender_canonical_maps > /dev/null
-echo "/From:.*/ REPLACE From: ${smtpusername}" | sudo tee /etc/postfix/header_check > /dev/null
-sudo postmap /etc/postfix/sender_canonical_maps
-sudo postmap /etc/postfix/header_check
-
-# Forwarding System Mail to your email address
-echo "root:     ${email}" | sudo tee -a /etc/aliases > /dev/null
-
-# Enable aliases
-sudo newaliases
-
-# Restart Postfix
-sudo service postfix restart
+apache='n' php='n' nodejs='n' bash -c "$(wget --no-cache -O- https://raw.githubusercontent.com/RomainFalemail=${email} apache='n' php='n' nodejs='n' bash -c "$(wget --no-cache -O- https://raw.githubusercontent.com/RomainFallet/web-deploy/master/ubuntu18.04_configure_deploy_env.sh)"let/web-deploy/master/ubuntu18.04_configure_deploy_env.sh)"
 ```
 <!-- markdownlint-enable -->
-
-### Step 2: Firewall
-
-[Back to top ↑](#installation-guide)
-
-We will enable Ubuntu firewall in order to prevent remote access to our machine.
-We will only allow SSH (for remote SSH access) and Postfix
-(for emails sent to the postmaster address).
-**Careful, you need to allow SSH before enabling the
-firewall, if not, you may lose access to your machine.**
-
-```bash
-# Add rules and activate firewall
-sudo ufw allow 3022
-echo 'y' | sudo ufw enable
-```
-
-### Step 3: Fail2ban
-
-[Back to top ↑](#installation-guide)
-
-Preventing remote access from others sotwares than SSH and Postfix in not
-enough. We are still vulnerable to brute-force attacks through these services.
-We will use Fail2ban to protect us.
-
-```bash
-# Install
-sudo apt install -y fail2ban
-
-# Add default configuration
-echo "[DEFAULT]
-findtime = 3600
-bantime = 86400
-destemail = ${email}
-action = %(action_mwl)s" | sudo tee /etc/fail2ban/jail.local > /dev/null
-
-echo "
-[sshd]
-enabled = true
-port = ssh
-filter = sshd
-logpath = /var/log/auth.log
-maxretry = 3" | sudo tee -a /etc/fail2ban/jail.local > /dev/null
-
-# Restart Fail2ban
-sudo service fail2ban restart
-```
 
 ## 10. Configure hard drive
 
