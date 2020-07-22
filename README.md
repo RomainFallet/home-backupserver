@@ -9,11 +9,10 @@
 3. [Hardware installation](#3-hardware-installation)
 4. [Initial Ubuntu setup](#4-initial-ubuntu-setup)
     * [Step 1: set up appropriate keyboard layout](#step-1-set-up-appropriate-keyboard-layout)
-    * [Step 2: set up timezone](#step-2-set-up-timezone)
-    * [Step 3: restart your machine to enable changes](#step-3-restart-your-machine-to-enable-changes)
-    * [Step 4: allow root login](#step-4-allow-root-login)
-    * [Step 5: change username, password and hostname](#step-5-change-username-password-and-hostname)
-    * [Step 6: disallow root login](#step-6-disallow-root-login)
+    * [Step 2: restart your machine to enable changes](#step-2-restart-your-machine-to-enable-changes)
+    * [Step 3: allow root login](#step-3-allow-root-login)
+    * [Step 4: change username and password](#step-4-change-username-and-password)
+    * [Step 5: disallow root login](#step-5-disallow-root-login)
 5. [Upgrade your system & enable automatic updates](#5-upgrade-your-system--enable-automatic-updates)
 6. [Local network access](#6-local-network-access)
     * [Step 1: display the MAC address of your Pie connected network](#step-1-display-the-mac-address-of-your-pie-connected-network)
@@ -124,15 +123,7 @@ the password later.*
 sudo dpkg-reconfigure keyboard-configuration
 ```
 
-### Step 2: set up timezone
-
-[Back to top ↑](#installation-guide)
-
-```bash
-sudo timedatectl set-timezone Europe/Paris
-```
-
-### Step 3: restart your machine to enable changes
+### Step 2: restart your machine to enable changes
 
 [Back to top ↑](#installation-guide)
 
@@ -140,7 +131,7 @@ sudo timedatectl set-timezone Europe/Paris
 sudo reboot
 ```
 
-### Step 4: allow root login
+### Step 3: allow root login
 
 [Back to top ↑](#installation-guide)
 
@@ -153,7 +144,7 @@ sudo passwd root
 logout
 ```
 
-### Step 5: change username, password and hostname
+### Step 4: change username and password
 
 [Back to top ↑](#installation-guide)
 
@@ -169,12 +160,9 @@ usermod -d /home/<newUserName> -m <newUserName>
 
 # Change password
 passwd <newUserName>
-
-# Change hostname (must be a domain name pointing to this machine IP address)
-hostnamectl set-hostname <newHostname>
 ```
 
-### Step 6: disallow root login
+### Step 5: disallow root login
 
 [Back to top ↑](#installation-guide)
 
@@ -185,8 +173,8 @@ you should never leave your root account accessible.
 # Disable root account
 passwd -l root
 
-# Reboot to apply changes
-reboot
+# Logout from root user
+logout
 ```
 
 ## 5. Upgrade your system & enable automatic updates
