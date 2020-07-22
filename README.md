@@ -403,7 +403,7 @@ sudo service ssh restart
 
 <!-- markdownlint-disable MD013 -->
 ```bash
-apache='n' php='n' nodejs='n' bash -c "$(wget --no-cache -O- https://raw.githubusercontent.com/RomainFalemail=${email} apache='n' php='n' nodejs='n' bash -c "$(wget --no-cache -O- https://raw.githubusercontent.com/RomainFallet/web-deploy/master/ubuntu18.04_configure_deploy_env.sh)"let/web-deploy/master/ubuntu18.04_configure_deploy_env.sh)"
+apache='n' php='n' nodejs='n' bash -c "$(wget --no-cache -O- https://raw.githubusercontent.com/RomainFallet/web-deploy/master/ubuntu18.04_configure_deploy_env.sh)"
 ```
 <!-- markdownlint-enable -->
 
