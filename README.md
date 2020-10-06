@@ -37,8 +37,7 @@
     * [Step 1: ask for username and generate password](#step-1-ask-for-username-and-generate-password)
     * [Step 2: create the user and put it into a jail](#step-2-create-the-user-and-put-it-into-a-jail)
     * [Step 3: enable access from your computer](#step-3-enable-access-from-your-computer)
-    * [Step 4: enable access from the machine that will perform backups](#step-4-enable-access-from-the-machine-that-will-perform-backups
-)
+    * [Step 4: enable access from the machine that will perform backups](#step-4-enable-access-from-the-machine-that-will-perform-backups)
 
 ## 1. Requirements
 
